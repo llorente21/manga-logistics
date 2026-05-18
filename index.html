@@ -591,23 +591,96 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 // ══════════════════════════════════════════════
 //  SUPABASE CONFIG
 // ══════════════════════════════════════════════
-// ── API proxy through Netlify Functions (bypasses CORS)
-const API = '/.netlify/functions/api';
+// ── Firebase Firestore SDK
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD3CA32I9udisq7DGgutIgL0C668nZv8HU",
+  authDomain: "manga-logistics.firebaseapp.com",
+  projectId: "manga-logistics",
+  storageBucket: "manga-logistics.firebasestorage.app",
+  messagingSenderId: "939486277359",
+  appId: "1:939486277359:web:4aa29b813d76734a08751a"
+};
 
+// Firebase REST API (no SDK needed — works in plain HTML)
+const FB_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
+
+async function fbGet(collection) {
+  const res = await fetch(`${FB_URL}/${collection}?pageSize=500&key=${FIREBASE_CONFIG.apiKey}`);
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  if (!data.documents) return [];
+  return data.documents.map(fbDocToObj);
+}
+
+async function fbSet(collection, id, obj) {
+  const fields = objToFbFields(obj);
+  const res = await fetch(
+    `${FB_URL}/${collection}/${id}?key=${FIREBASE_CONFIG.apiKey}`,
+    { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({fields}) }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function fbDelete(collection, id) {
+  const res = await fetch(
+    `${FB_URL}/${collection}/${id}?key=${FIREBASE_CONFIG.apiKey}`,
+    { method: 'DELETE' }
+  );
+  if (!res.ok && res.status !== 404) throw new Error(await res.text());
+}
+
+function fbDocToObj(doc) {
+  const obj = { _id: doc.name.split('/').pop() };
+  for (const [k, v] of Object.entries(doc.fields || {})) {
+    obj[k] = fbValToJs(v);
+  }
+  return obj;
+}
+
+function fbValToJs(v) {
+  if (v.stringValue  !== undefined) return v.stringValue;
+  if (v.integerValue !== undefined) return parseInt(v.integerValue);
+  if (v.doubleValue  !== undefined) return parseFloat(v.doubleValue);
+  if (v.booleanValue !== undefined) return v.booleanValue;
+  if (v.nullValue    !== undefined) return null;
+  if (v.mapValue     !== undefined) {
+    const obj = {};
+    for (const [k,val] of Object.entries(v.mapValue.fields||{})) obj[k]=fbValToJs(val);
+    return obj;
+  }
+  if (v.arrayValue !== undefined) return (v.arrayValue.values||[]).map(fbValToJs);
+  return null;
+}
+
+function jsToFbVal(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === 'boolean')  return { booleanValue: v };
+  if (typeof v === 'number')   return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (typeof v === 'string')   return { stringValue: v };
+  if (Array.isArray(v))        return { arrayValue: { values: v.map(jsToFbVal) } };
+  if (typeof v === 'object')   return { mapValue: { fields: objToFbFields(v) } };
+  return { stringValue: String(v) };
+}
+
+function objToFbFields(obj) {
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (k === '_id') continue;
+    fields[k] = jsToFbVal(v);
+  }
+  return fields;
+}
+
+// ── Main DB interface
 const sb = {
-  async call(action, payload={}){
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, ...payload })
-    });
-    if(!res.ok){ const e=await res.text(); throw new Error(e); }
-    return res.json();
+  async getAll(table) { return fbGet(table); },
+  async upsertMany(table, rows) {
+    const pk = table === 'registros' ? 'id' : 'email';
+    await Promise.all(rows.map(r => fbSet(table, String(r[pk]), r)));
   },
-  async getAll(table){ return sb.call('getAll', { table }); },
-  async upsertMany(table, rows){ return sb.call('upsertMany', { table, rows }); },
-  async delete(table, col, val){ return sb.call('delete', { table, col, val }); },
-  async getUsers(){ return sb.call('getAll', { table: 'usuarios' }); },
+  async delete(table, col, val) { await fbDelete(table, String(val)); },
+  async getUsers() { return fbGet('usuarios'); },
 };
 
 // ── Loading overlay
