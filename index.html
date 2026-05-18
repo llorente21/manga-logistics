@@ -624,7 +624,7 @@ async function fbSet(collection, id, obj) {
 
 async function fbDelete(collection, id) {
   const res = await fetch(
-    `${FB_URL}/${collection}/${id}?key=${FIREBASE_CONFIG.apiKey}`,
+    `${FB_URL}/${collection}/${encodeURIComponent(id)}?key=${FIREBASE_CONFIG.apiKey}`,
     { method: 'DELETE' }
   );
   if (!res.ok && res.status !== 404) throw new Error(await res.text());
@@ -679,7 +679,7 @@ const sb = {
     const pk = table === 'registros' ? 'id' : 'email';
     await Promise.all(rows.map(r => fbSet(table, String(r[pk]), r)));
   },
-  async delete(table, col, val) { await fbDelete(table, String(val)); },
+  async delete(table, id) { await fbDelete(table, String(id)); },
   async getUsers() { return fbGet('usuarios'); },
 };
 
@@ -1237,9 +1237,9 @@ function deleteFromDetail(){
   if(!isAdmin())return;
   if(!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.'))return;
   const delId2 = currentDetailId;
-  records=records.filter(x=>x.id!==delId2);
+  records=records.filter(x=>String(x.id)!==String(delId2));
   saveData();
-  sb.delete('registros','id',delId2).catch(()=>{});
+  sb.delete('registros', String(delId2)).catch(()=>{});
   closeDrawer('detail');renderStats();renderList();showToast('Registro eliminado');
 }
 
@@ -1325,9 +1325,9 @@ function deleteRecord(){
   if(!isAdmin())return;
   if(!confirm('¿Eliminar este registro?'))return;
   const delId = editingId;
-  records=records.filter(x=>x.id!==delId);
+  records=records.filter(x=>String(x.id)!==String(delId));
   saveData();
-  sb.delete('registros','id',delId).catch(()=>{});
+  sb.delete('registros', String(delId)).catch(()=>{});
   closeDrawer('form');renderStats();renderList();showToast('Registro eliminado');
 }
 
@@ -1875,3 +1875,4 @@ function showToast(msg){
 </script>
 </body>
 </html>
+
