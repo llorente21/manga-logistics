@@ -1282,6 +1282,13 @@ function autoDias(){
     const months=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     document.getElementById('f-mes').value = months[new Date(ref).getMonth()];
   }
+  // Auto-set status based on salida date
+  const statusSel = document.getElementById('f-status');
+  if(s && s.trim() !== ''){
+    statusSel.value = 'DESPACHADO';
+  } else {
+    statusSel.value = 'PENDIENTE';
+  }
 }
 function saveRecord(){
   if(!isAdmin())return;
