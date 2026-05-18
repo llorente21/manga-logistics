@@ -1237,10 +1237,16 @@ function deleteFromDetail(){
   if(!isAdmin())return;
   if(!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.'))return;
   const delId2 = currentDetailId;
+  // Update UI immediately
   records=records.filter(x=>String(x.id)!==String(delId2));
   saveData();
-  sb.delete('registros', String(delId2)).catch(()=>{});
-  closeDrawer('detail');renderStats();renderList();showToast('Registro eliminado');
+  closeDrawer('detail');
+  renderStats();
+  renderList();
+  buildFilterOptions();
+  showToast('Registro eliminado');
+  // Sync to Firebase in background
+  sb.delete('registros', String(delId2)).catch(e=>console.warn('Delete sync:', e));
 }
 
 // ── FORM ──
@@ -1317,18 +1323,28 @@ function saveRecord(){
   if(editingId){records[records.findIndex(x=>x.id===editingId)]=r;showToast('Registro actualizado ✓');}
   else{records.unshift(r);showToast('Registro guardado ✓');}
   saveData();
-  syncToSupabase().catch(()=>{});
   closeDrawer('form');
-  buildFilterOptions();renderStats();renderList();updateStatsPage();
+  buildFilterOptions();
+  renderStats();
+  renderList();
+  updateStatsPage();
+  // Sync to Firebase in background
+  syncToSupabase().catch(e=>console.warn('Save sync:', e));
 }
 function deleteRecord(){
   if(!isAdmin())return;
   if(!confirm('¿Eliminar este registro?'))return;
   const delId = editingId;
+  // Update UI immediately
   records=records.filter(x=>String(x.id)!==String(delId));
   saveData();
-  sb.delete('registros', String(delId)).catch(()=>{});
-  closeDrawer('form');renderStats();renderList();showToast('Registro eliminado');
+  closeDrawer('form');
+  renderStats();
+  renderList();
+  buildFilterOptions();
+  showToast('Registro eliminado');
+  // Sync to Firebase in background
+  sb.delete('registros', String(delId)).catch(e=>console.warn('Delete sync:', e));
 }
 
 // ── STATS PAGE ──
@@ -1875,4 +1891,3 @@ function showToast(msg){
 </script>
 </body>
 </html>
-
