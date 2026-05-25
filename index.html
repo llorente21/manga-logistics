@@ -80,7 +80,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .stat-pill .num{color:white;font-weight:700;font-size:15px}
 .stat-pill .lbl{color:rgba(255,255,255,.5);font-size:10px;letter-spacing:.5px;font-family:'Inter',sans-serif;font-weight:500}
 .stat-pill.danger .num{color:#FF5252}
-.stat-pill.ok .num{color:var(--yellow)}
+.stat-pill.ok .num{color:var(--success)}
 
 /* Active filters indicator */
 .filter-active-bar{background:rgba(255,214,0,.1);border-bottom:1px solid rgba(255,214,0,.3);padding:6px 1rem;display:none;align-items:center;gap:6px;font-size:12px;color:var(--accent)}
@@ -1552,6 +1552,10 @@ function renderProfile(){
         <div class="settings-item-left"><div class="settings-icon">📂</div><span class="settings-text">Carga masiva de registros</span></div>
         <span class="chevron">›</span>
       </div>
+      <div class="settings-item" onclick="exportCSV()">
+        <div class="settings-item-left"><div class="settings-icon">📊</div><span class="settings-text">Exportar a Excel / CSV</span></div>
+        <span class="chevron">›</span>
+      </div>
       <div class="settings-item" onclick="exportData()">
         <div class="settings-item-left"><div class="settings-icon">📤</div><span class="settings-text">Exportar datos (JSON)</span></div>
         <span class="chevron">›</span>
@@ -1880,24 +1884,23 @@ async function resetDemoData(){
 function exportData(){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(records,null,2)],{type:'application/json'}));
-  a.download='control-neveras-export.json';a.click();showToast('Exportando datos…');
+  a.download='manga-export.json';a.click();showToast('Exportando JSON…');
 }
-function logout(){localStorage.removeItem('cn_user');location.reload();}
 
-// ── DRAWERS ──
-function openDrawer(n){document.getElementById(n+'-overlay').classList.add('open');document.getElementById(n+'-drawer').classList.add('open');document.body.style.overflow='hidden';}
-function closeDrawer(n){document.getElementById(n+'-overlay').classList.remove('open');document.getElementById(n+'-drawer').classList.remove('open');document.body.style.overflow='';}
-
-// ── UTILS ──
-function fmtDate(d){
-  if(!d)return '—';
-  const[y,m,day]=d.split('-');
-  return `${parseInt(day)}-${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(m)-1]}-${y.slice(2)}`;
-}
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-</script>
-</body>
-</html>
+function exportCSV(){
+  const cols = [
+    'nevera','sello','mes','semana',
+    'fecha_entrada','chofer_entrada','placa_entrada','op_entrada',
+    'fecha_salida','chofer_salida','placa_salida','op_salida',
+    'ruta','conduce','dias','status','comentario'
+  ];
+  const labels = [
+    'Nevera','Sello','Mes','Semana',
+    'Fecha Entrada','Chofer Entrada','Placa Entrada','Operador Entrada',
+    'Fecha Salida','Chofer Salida','Placa Salida','Operador Salida',
+    'Ruta','Conduce','Días de Uso','Status','Comentario'
+  ];
+  const bom = '\uFEFF';
+  let csv = labels.join(',') + '\n';
+  records.forEach(r => {
+    const row = cols.map(c
