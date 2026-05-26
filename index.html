@@ -1565,7 +1565,7 @@ function renderProfile(){
         <span class="chevron" style="color:var(--danger)">›</span>
       </div>
     </div>
-    <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:2rem">Control Neveras v1.2 · 2026</p>`;
+    <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:2rem">MANGA · v1.5 · 2026-05-26</p>`;
 }
 
 // ── CSV COLUMNS ──
@@ -1903,4 +1903,35 @@ function exportCSV(){
   const bom = '\uFEFF';
   let csv = labels.join(',') + '\n';
   records.forEach(r => {
-    const row = cols.map(c
+    const row = cols.map(c => {
+      const val = String(r[c] ?? '').replace(/"/g, '""');
+      return `"${val}"`;
+    });
+    csv += row.join(',') + '\n';
+  });
+  const blob = new Blob([bom + csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `manga-registros-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  showToast('Exportando CSV…');
+}
+function logout(){localStorage.removeItem('cn_user');location.reload();}
+
+// ── DRAWERS ──
+function openDrawer(n){document.getElementById(n+'-overlay').classList.add('open');document.getElementById(n+'-drawer').classList.add('open');document.body.style.overflow='hidden';}
+function closeDrawer(n){document.getElementById(n+'-overlay').classList.remove('open');document.getElementById(n+'-drawer').classList.remove('open');document.body.style.overflow='';}
+
+// ── UTILS ──
+function fmtDate(d){
+  if(!d)return '—';
+  const[y,m,day]=d.split('-');
+  return `${parseInt(day)}-${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(m)-1]}-${y.slice(2)}`;
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
