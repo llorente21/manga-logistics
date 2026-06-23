@@ -1848,7 +1848,7 @@ function saveUser(){
   renderUsersList();
 }
 
-function deleteUser(){
+async function deleteUser(){
   if(!isAdmin()) return;
   if(editingUserEmail === currentUser.email){
     showToast('No puedes eliminar tu propia cuenta'); return;
@@ -1860,11 +1860,22 @@ function deleteUser(){
     showToast('Debe existir al menos un administrador'); return;
   }
   if(!confirm('¿Eliminar este usuario?')) return;
+
+  // Remove from local list immediately
   USERS_LIST = USERS_LIST.filter(u=>u.email!==editingUserEmail);
-  saveUsers(USERS_LIST);
+  localStorage.setItem('manga_users', JSON.stringify(USERS_LIST));
+
+  // Delete from Firebase
+  try {
+    await fbDelete('usuarios', editingUserEmail);
+    showToast('Usuario eliminado ✓');
+  } catch(e){
+    console.warn('Error deleting user from Firebase:', e);
+    showToast('Usuario eliminado localmente');
+  }
+
   closeDrawer('userform');
   renderUsersList();
-  showToast('Usuario eliminado');
 }
 
 function toggleUFPassword(){
