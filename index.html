@@ -1146,6 +1146,12 @@ function renderList(){
     area.innerHTML='<div class="empty-state"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg><p>No hay registros que coincidan</p></div>';
     return;
   }
+  // Ordenar por fecha_entrada descendente (más reciente primero)
+  filtered.sort((a,b)=>{
+    const fa = a.fecha_entrada||'';
+    const fb = b.fecha_entrada||'';
+    return fb.localeCompare(fa);
+  });
   const byMonth={};
   filtered.forEach(r=>{if(!byMonth[r.mes])byMonth[r.mes]=[];byMonth[r.mes].push(r);});
   area.innerHTML=Object.entries(byMonth).map(([mes,recs])=>
