@@ -1037,11 +1037,11 @@ async function enterApp(){
     document.getElementById('fab-btn').style.display='none';
     document.getElementById('readonly-banner').style.display='none';
     // Show all admin-only elements
-    // Show admin elements
+    // Show admin elements by overriding inline style
     const chipEl = document.getElementById('admin-chip');
-    if(chipEl) chipEl.style.display = 'flex';
+    if(chipEl) chipEl.setAttribute('style', chipEl.getAttribute('style').replace('display:none','display:flex'));
     const addBtnEl = document.getElementById('filter-bar-add');
-    if(addBtnEl) addBtnEl.style.display = 'flex';
+    if(addBtnEl) addBtnEl.setAttribute('style', addBtnEl.getAttribute('style').replace('display:none','display:flex'));
     const ha=document.getElementById('header-actions');
     if(!document.getElementById('hdr-add')){
       const b=document.createElement('button');
