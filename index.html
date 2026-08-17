@@ -175,6 +175,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
   border:none;background:none;cursor:pointer;padding:0;
 }
+.bnav-add-btn{
+  display:none;
+  flex-direction:column;align-items:center;gap:2px;
+  border:none;background:none;cursor:pointer;padding:0;
+}
+.bnav-add-btn.show{display:flex}
 .bottom-nav-add-circle{
   width:46px;height:46px;background:var(--yellow);border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -185,7 +191,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bottom-nav-add-circle:active{transform:scale(.95)}
 .bottom-nav-add span{font-size:9px;font-weight:600;letter-spacing:.5px;color:var(--text3);font-family:'Inter',sans-serif;text-transform:uppercase}
 [data-theme="dark"] .bottom-nav{background:var(--surface);border-top-color:var(--border)}
-[data-theme="dark"] .bottom-nav-add-circle{box-shadow:0 4px 14px rgba(243,178,60,.3)}
+[data-theme="dark"] .bnav-add-btn{
+  display:none;
+  flex-direction:column;align-items:center;gap:2px;
+  border:none;background:none;cursor:pointer;padding:0;
+}
+.bnav-add-btn.show{display:flex}
+.bottom-nav-add-circle{box-shadow:0 4px 14px rgba(243,178,60,.3)}
 
 /* Add padding to list so last card not hidden by bottom nav */
 #list-content{padding-bottom:80px}
@@ -748,7 +760,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>
       <span>Stats</span>
     </button>
-    <button id="bnav-add" onclick="openAddDrawer()" style="display:none;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;padding:0">
+    <button id="bnav-add" onclick="openAddDrawer()" class="bnav-add-btn">
       <div class="bottom-nav-add-circle">
         <svg viewBox="0 0 24 24" fill="none" stroke="#001233" stroke-width="2.5" stroke-linecap="round" width="22" height="22"><path d="M12 5v14M5 12h14"/></svg>
       </div>
@@ -1115,9 +1127,11 @@ async function enterApp(){
     if(!document.getElementById('admin-show-style')){
       const st = document.createElement('style');
       st.id = 'admin-show-style';
-      st.textContent = '#bnav-add { display: flex !important; } #filter-bar-add { display: flex !important; }';
+      st.textContent = '#filter-bar-add { display: flex !important; }';
       document.head.appendChild(st);
     }
+    const bnavAdd = document.getElementById('bnav-add');
+    if(bnavAdd) bnavAdd.classList.add('show');
     const ha=document.getElementById('header-actions');
     if(!document.getElementById('hdr-add')){
       const b=document.createElement('button');
