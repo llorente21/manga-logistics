@@ -1127,7 +1127,7 @@ async function enterApp(){
     if(!document.getElementById('admin-show-style')){
       const st = document.createElement('style');
       st.id = 'admin-show-style';
-      st.textContent = '#filter-bar-add { display: flex !important; }';
+      st.textContent = '@media(min-width:769px){ #filter-bar-add { display: flex !important; } } @media(max-width:768px){ #filter-bar-add { display: none !important; } }';
       document.head.appendChild(st);
     }
     const bnavAdd = document.getElementById('bnav-add');
