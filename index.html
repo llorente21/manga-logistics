@@ -106,7 +106,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .filter-tag{background:var(--yellow);color:var(--accent);border-radius:100px;padding:2px 10px;font-size:11px;font-weight:700}
 .filter-clear-btn{margin-left:auto;font-size:12px;color:var(--danger);cursor:pointer;font-weight:500;background:none;border:none;font-family:'DM Sans',sans-serif;padding:2px 0}
 
-.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 0 0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;position:sticky;top:98px;z-index:89}
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 0 0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;position:sticky;top:58px;z-index:89}
 .filter-bar::-webkit-scrollbar{display:none}
 .filter-tab{flex:0 0 auto;padding:10px 16px;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
 .filter-tab.active{color:var(--yellow);border-bottom-color:var(--yellow);font-weight:700}
@@ -143,6 +143,43 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .card-dias{font-size:12px;font-weight:700;color:var(--text2);background:var(--surface2);padding:3px 10px;border-radius:100px;border:1px solid var(--border)}
 
 .fab{display:none!important}
+
+/* ── Bottom Navigation ── */
+.bottom-nav{display:none}
+@media(max-width:768px){.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:6px 0 env(safe-area-inset-bottom);
+  z-index:100;
+}}
+.bottom-nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  border:none;background:none;cursor:pointer;padding:4px 0;
+  color:var(--text3);transition:all .2s;
+}
+.bottom-nav-btn.active{color:var(--yellow)}
+.bottom-nav-btn svg{width:22px;height:22px;transition:all .2s}
+.bottom-nav-btn span{font-size:9px;font-weight:600;letter-spacing:.5px;font-family:'Inter',sans-serif;text-transform:uppercase}
+.bottom-nav-add{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  border:none;background:none;cursor:pointer;padding:0;
+}
+.bottom-nav-add-circle{
+  width:46px;height:46px;background:var(--yellow);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:-16px;
+  box-shadow:0 4px 14px rgba(243,178,60,.45);
+  transition:transform .2s;
+}
+.bottom-nav-add-circle:active{transform:scale(.95)}
+.bottom-nav-add span{font-size:9px;font-weight:600;letter-spacing:.5px;color:var(--text3);font-family:'Inter',sans-serif;text-transform:uppercase}
+[data-theme="dark"] .bottom-nav{background:var(--surface);border-top-color:var(--border)}
+[data-theme="dark"] .bottom-nav-add-circle{box-shadow:0 4px 14px rgba(243,178,60,.3)}
+
+/* Add padding to list so last card not hidden by bottom nav */
+#list-content{padding-bottom:80px}
 
 .fab:active{transform:scale(.94)}
 
@@ -356,23 +393,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="header-logo">
       <span style="font-family:'Poppins','Nunito','Arial Rounded MT Bold',sans-serif;font-weight:800;font-size:26px;color:white;letter-spacing:-.3px">manga</span>
     </div>
-    <!-- Navigation in header -->
-    <div class="header-nav">
-      <button class="header-nav-btn active" id="nav-home" onclick="switchPage('home')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><rect x="9" y="14" width="6" height="8"/></svg>
-        Inicio
-      </button>
-      <button class="header-nav-btn" id="nav-stats" onclick="switchPage('stats')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>
-        Stats
-      </button>
-      <button class="header-nav-btn" id="nav-profile" onclick="switchPage('profile')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855"/></svg>
-        Perfil
-      </button>
-    </div>
+    
     <!-- Actions -->
     <div class="header-actions" id="header-actions">
+      <!-- Desktop Navigation in header -->
+      <div class="header-nav" id="header-nav-desktop">
+        <button class="header-nav-btn active" id="nav-home" onclick="switchPage('home')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><rect x="9" y="14" width="6" height="8"/></svg>
+          Inicio
+        </button>
+        <button class="header-nav-btn" id="nav-stats" onclick="switchPage('stats')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>
+          Stats
+        </button>
+        <button class="header-nav-btn" id="nav-profile" onclick="switchPage('profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855"/></svg>
+          Perfil
+        </button>
+      </div>
       <span id="admin-chip" class="admin-chip" style="display:flex;align-items:center;gap:4px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 3l8 4v5c0 4.5-3.5 8.7-8 10-4.5-1.3-8-5.5-8-10V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
         ADMIN
@@ -690,6 +728,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <button class="btn-primary" onclick="applyFilters()">Aplicar filtros</button>
   </div>
 </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bottom-nav-btn active" id="bnav-home" onclick="switchPage('home');setActiveNav('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><rect x="9" y="14" width="6" height="8"/></svg>
+      <span>Inicio</span>
+    </button>
+    <button class="bottom-nav-btn" id="bnav-stats" onclick="switchPage('stats');setActiveNav('stats')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>
+      <span>Stats</span>
+    </button>
+    <button id="bnav-add" onclick="openAddDrawer()" style="display:none;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;padding:0">
+      <div class="bottom-nav-add-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#001233" stroke-width="2.5" stroke-linecap="round" width="22" height="22"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <span style="font-size:9px;font-weight:600;letter-spacing:.5px;color:var(--text3);font-family:'Inter',sans-serif;text-transform:uppercase">Nuevo</span>
+    </button>
+    <button class="bottom-nav-btn" id="bnav-profile" onclick="switchPage('profile');setActiveNav('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855"/></svg>
+      <span>Perfil</span>
+    </button>
+  </nav>
 
 <div id="sync-indicator">
   <div id="sync-dot"></div>
@@ -1046,7 +1106,7 @@ async function enterApp(){
     if(!document.getElementById('admin-show-style')){
       const st = document.createElement('style');
       st.id = 'admin-show-style';
-      st.textContent = '.manga-admin-el { display: flex !important; }';
+      st.textContent = '#bnav-add { display: flex !important; } #filter-bar-add { display: flex !important; }';
       document.head.appendChild(st);
     }
     const ha=document.getElementById('header-actions');
@@ -1128,7 +1188,19 @@ function toggleView(){
   renderList();
 }
 
+function setActiveNav(page){
+  // Bottom nav
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('bnav-'+page);
+  if(btn) btn.classList.add('active');
+  // Header nav (desktop)
+  document.querySelectorAll('.header-nav-btn').forEach(b => b.classList.remove('active'));
+  const hbtn = document.getElementById('nav-'+page);
+  if(hbtn) hbtn.classList.add('active');
+}
+
 function switchPage(page){
+  setActiveNav(page);
   ['home','stats','profile'].forEach(p=>{
     document.getElementById('page-'+p).style.display=p===page?'block':'none';
     document.getElementById('nav-'+p).classList.toggle('active',p===page);
