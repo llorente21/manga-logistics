@@ -1,5 +1,4 @@
-const CACHE = 'manga-v2.1';
-const ASSETS = ['/manga-logistics/', '/manga-logistics/index.html'];
+const CACHE = 'manga-v2.2';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -16,6 +15,6 @@ self.addEventListener('fetch', e => {
   if(e.request.url.includes('firestore') || e.request.url.includes('firebase')){
     return;
   }
-  // ALWAYS network first - no caching of app files during active dev
+  // Network first - always fresh
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
