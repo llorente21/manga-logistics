@@ -27,7 +27,7 @@
 }
 @media(max-width:768px){
   #app-screen{padding-bottom:72px !important;padding-top:58px !important}
-  .bottom-nav{display:flex !important}
+  body.app-active .bottom-nav{display:flex !important}
   .header-nav{display:none !important}
 }
 </style>
@@ -155,7 +155,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ── Bottom Navigation ── */
 .bottom-nav{display:none}
-@media(max-width:768px){.bottom-nav{
+@media(max-width:768px){body.app-active .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;
   background:var(--surface);
   border-top:1px solid var(--border);
@@ -1087,6 +1087,7 @@ document.addEventListener('keydown', e=>{
 async function enterApp(){
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app-screen').style.display='block';
+  document.body.classList.add('app-active');
   showLoading('Cargando datos...');
   showSync('syncing','Conectando...');
 
