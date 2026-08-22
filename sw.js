@@ -1,4 +1,4 @@
-const CACHE = 'manga-v2.2';
+const CACHE = 'manga-v2.3';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -15,6 +15,5 @@ self.addEventListener('fetch', e => {
   if(e.request.url.includes('firestore') || e.request.url.includes('firebase')){
     return;
   }
-  // Network first - always fresh
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
