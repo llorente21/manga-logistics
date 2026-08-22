@@ -1235,8 +1235,10 @@ function setActiveNav(page){
 function switchPage(page){
   setActiveNav(page);
   ['home','stats','profile'].forEach(p=>{
-    document.getElementById('page-'+p).style.display=p===page?'block':'none';
-    document.getElementById('nav-'+p).classList.toggle('active',p===page);
+    const pg = document.getElementById('page-'+p);
+    if(pg) pg.style.display = p===page ? 'block' : 'none';
+    const navBtn = document.getElementById('nav-'+p);
+    if(navBtn) navBtn.classList.toggle('active', p===page);
   });
   // FAB removed — add button now in filter bar
   if(page==='stats'){
