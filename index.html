@@ -1091,6 +1091,7 @@ async function handleAuth(){
   errEl.style.display = 'none';
   currentUser = {email:user.email, name:user.name, role:user.role};
   localStorage.setItem('cn_user', JSON.stringify(currentUser));
+  startSession();
   enterApp();
 }
 document.addEventListener('keydown', e=>{
@@ -1171,7 +1172,7 @@ window.onload=()=>{
   applyTheme(savedTheme);
 
   const saved=localStorage.getItem('cn_user');
-  if(saved){ currentUser=JSON.parse(saved); enterApp(); return; }
+  if(saved){ currentUser=JSON.parse(saved); startSession(); enterApp(); return; }
   // Show splash for 2s then reveal login form
   setTimeout(()=>{
     const splash = document.getElementById('splash-view');
@@ -1238,7 +1239,13 @@ function switchPage(page){
     document.getElementById('nav-'+p).classList.toggle('active',p===page);
   });
   // FAB removed — add button now in filter bar
-  if(page==='stats')   updateStatsPage();
+  if(page==='stats'){
+    updateStatsPage();
+    if(isAdmin()){
+      document.getElementById('sessions-monitor-wrap').style.display='block';
+      renderSessionsMonitor();
+    }
+  }
   if(page==='profile') renderProfile();
 }
 
@@ -2372,6 +2379,176 @@ function hideSync(){
   const ind = document.getElementById('sync-indicator');
   if(ind) ind.classList.remove('show');
 }
+
+// ══════════════════════════════════════════
+// SESSION TRACKING SYSTEM
+// ══════════════════════════════════════════
+let sessionId = null;
+let sessionStart = null;
+let sessionHeartbeat = null;
+
+function startSession(){
+  if(!currentUser) return;
+  sessionStart = Date.now();
+  sessionId = 's_' + sessionStart + '_' + Math.random().toString(36).slice(2,7);
+  const today = new Date().toISOString().slice(0,10);
+  const session = {
+    email: currentUser.email,
+    name: currentUser.name || currentUser.email,
+    role: currentUser.role,
+    login: new Date().toISOString(),
+    lastSeen: new Date().toISOString(),
+    duration: 0,
+    date: today
+  };
+  // Save session to Firebase (background)
+  fbSet('sesiones', sessionId, session).catch(e => console.warn('Session save:', e));
+  localStorage.setItem('manga_session_id', sessionId);
+  localStorage.setItem('manga_session_start', String(sessionStart));
+
+  // Heartbeat every 30s to update duration + lastSeen
+  if(sessionHeartbeat) clearInterval(sessionHeartbeat);
+  sessionHeartbeat = setInterval(updateSession, 30000);
+}
+
+function updateSession(){
+  if(!sessionId || !sessionStart) return;
+  const duration = Math.round((Date.now() - sessionStart) / 1000); // seconds
+  fbSet('sesiones', sessionId, {
+    lastSeen: new Date().toISOString(),
+    duration: duration
+  }, true).catch(()=>{}); // merge update
+}
+
+// Update on visibility change and before unload
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) updateSession();
+});
+window.addEventListener('beforeunload', updateSession);
+window.addEventListener('pagehide', updateSession);
+
+// Relative time formatter
+function timeAgo(iso){
+  if(!iso) return 'Nunca';
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const diff = Math.round((now - then) / 1000); // seconds
+  if(diff < 60) return 'Ahora';
+  if(diff < 3600) return `Hace ${Math.round(diff/60)} min`;
+  if(diff < 86400){
+    const h = Math.round(diff/3600);
+    return `Hace ${h} hora${h>1?'s':''}`;
+  }
+  const d = new Date(iso);
+  const days = Math.round(diff/86400);
+  if(days === 1){
+    return `Ayer, ${d.toLocaleTimeString('es',{hour:'numeric',minute:'2-digit'})}`;
+  }
+  return d.toLocaleDateString('es',{day:'numeric',month:'short'}) + ', ' + d.toLocaleTimeString('es',{hour:'numeric',minute:'2-digit'});
+}
+
+function fmtDuration(seconds){
+  if(!seconds || seconds < 60) return '<1m';
+  const min = Math.round(seconds/60);
+  if(min < 60) return min + 'm';
+  const h = Math.floor(min/60);
+  const m = min % 60;
+  return h + 'h ' + (m>0 ? m+'m' : '');
+}
+
+function initials(email){
+  const name = email.split('@')[0];
+  const parts = name.split(/[._-]/);
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0,2).toUpperCase();
+}
+
+async function renderSessionsMonitor(){
+  const container = document.getElementById('sessions-monitor');
+  if(!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">Cargando actividad...</div>';
+
+  let sessions = [];
+  try {
+    sessions = await fbGet('sesiones');
+  } catch(e){
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">No se pudo cargar la actividad</div>';
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0,10);
+  const todaySessions = sessions.filter(s => s.date === today);
+
+  // Aggregate by user
+  const byUser = {};
+  sessions.forEach(s => {
+    if(!byUser[s.email]){
+      byUser[s.email] = { email:s.email, name:s.name, lastSeen:s.lastSeen, todayDuration:0, lastDuration:s.duration||0 };
+    }
+    const u = byUser[s.email];
+    if(new Date(s.lastSeen) > new Date(u.lastSeen)){
+      u.lastSeen = s.lastSeen;
+      u.lastDuration = s.duration||0;
+    }
+    if(s.date === today) u.todayDuration += (s.duration||0);
+  });
+
+  const users = Object.values(byUser).sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen));
+
+  // Active = seen in last 3 min
+  const activeUsers = users.filter(u => (Date.now() - new Date(u.lastSeen).getTime()) < 180000);
+  const avgDuration = todaySessions.length
+    ? Math.round(todaySessions.reduce((s,x)=>s+(x.duration||0),0) / todaySessions.length)
+    : 0;
+
+  let html = `
+    <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:1rem">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Resumen de actividad</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--surface);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:var(--text3)">Activos ahora</div>
+          <div style="font-size:24px;font-weight:600;color:var(--success);margin-top:2px">${activeUsers.length}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:var(--text3)">Sesiones hoy</div>
+          <div style="font-size:24px;font-weight:600;color:var(--text);margin-top:2px">${todaySessions.length}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:var(--text3)">Tiempo promedio</div>
+          <div style="font-size:24px;font-weight:600;color:var(--yellow);margin-top:2px">${fmtDuration(avgDuration)}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:var(--text3)">Total usuarios</div>
+          <div style="font-size:24px;font-weight:600;color:var(--text);margin-top:2px">${users.length}</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border-radius:12px;padding:14px">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Actividad por usuario</div>`;
+
+  if(users.length === 0){
+    html += '<div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px">Sin actividad registrada</div>';
+  } else {
+    users.forEach(u => {
+      const isOnline = (Date.now() - new Date(u.lastSeen).getTime()) < 180000;
+      html += `
+        <div style="background:var(--surface);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:${isOnline?'var(--accent-light)':'var(--surface2)'};color:${isOnline?'var(--yellow)':'var(--text2)'};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0">${initials(u.email)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.email}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:1px">${isOnline?'Ahora · en línea':timeAgo(u.lastSeen)}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            ${isOnline?'<div style="font-size:13px;color:var(--success)">●</div>':''}
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">${u.todayDuration>0?fmtDuration(u.todayDuration)+' hoy':fmtDuration(u.lastDuration)}</div>
+          </div>
+        </div>`;
+    });
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
 </script>
 </body>
 </html>
