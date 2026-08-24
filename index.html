@@ -127,7 +127,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .filter-tag{background:var(--yellow);color:var(--accent);border-radius:100px;padding:2px 10px;font-size:11px;font-weight:700}
 .filter-clear-btn{margin-left:auto;font-size:12px;color:var(--danger);cursor:pointer;font-weight:500;background:none;border:none;font-family:'DM Sans',sans-serif;padding:2px 0}
 
-.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 0 0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;position:sticky;top:110px;z-index:89;height:44px;box-sizing:border-box}
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 0 0 1rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;position:sticky;top:58px;z-index:89;height:44px;box-sizing:border-box}
 .filter-bar::-webkit-scrollbar{display:none}
 .filter-tab{flex:0 0 auto;padding:10px 16px;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
 .filter-tab.active{color:var(--yellow);border-bottom-color:var(--yellow);font-weight:700}
@@ -172,6 +172,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 @media(min-width:769px){.header-theme-btn{display:flex}}
 @media(max-width:768px){#bnav-theme{display:flex}}
 @media(min-width:769px){#header-profile-btn{display:none}}
+@media(min-width:769px){#header-settings-btn{display:flex}}
 
 /* ── Bottom Navigation ── */
 .bottom-nav{display:none}
@@ -446,13 +447,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <button class="header-btn" onclick="switchPage('profile');setActiveNav('profile')" title="Perfil" id="header-profile-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855"/></svg>
       </button>
+      <button class="header-btn" onclick="switchPage('settings');setActiveNav('settings')" title="Ajustes" id="header-settings-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
       <button class="header-btn header-theme-btn" onclick="toggleDarkMode()" title="Cambiar tema" id="header-theme-btn">
         <span id="header-theme-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 3a6 6 0 009 9 9 9 0 11-9-9z"/></svg></span>
       </button>
     </div>
   </header>
-
-  <div class="stats-bar" id="stats-bar"></div>
 
   <div class="readonly-banner" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -495,6 +497,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
   <div id="page-stats" style="display:none"><div class="stats-page" id="stats-content"></div><div id="sessions-monitor-wrap" style="padding:0 1rem 1rem;display:none"><div class="settings-group-label" style="margin-top:1rem">Monitoreo de sesiones</div><div id="sessions-monitor"></div></div></div>
   <div id="page-profile" style="display:none"><div class="profile-section" id="profile-content"></div></div>
+  <div id="page-settings" style="display:none"><div class="profile-section" id="settings-content" style="padding:1rem"></div></div>
+  <div id="page-datos" style="display:none"><div class="profile-section" id="datos-content" style="padding:1rem"></div></div>
 
   <button class="fab" id="fab-btn" style="display:none" onclick="openAddDrawer()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>
@@ -773,9 +777,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <span style="font-size:9px;font-weight:600;letter-spacing:.5px;color:var(--text3);font-family:'Inter',sans-serif;text-transform:uppercase">Nuevo</span>
     </button>
-    <button class="bottom-nav-btn" id="bnav-theme" onclick="toggleDarkMode()">
-      <span id="bnav-theme-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M12 3a6 6 0 009 9 9 9 0 11-9-9z"/></svg></span>
-      <span id="bnav-theme-label">Tema</span>
+    <button class="bottom-nav-btn" id="bnav-datos" onclick="switchPage('datos');setActiveNav('datos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6a8 3 0 0016 0V5"/><path d="M4 11v6a8 3 0 0016 0v-6"/></svg>
+      <span>Datos</span>
     </button>
   </nav>
 
@@ -1228,7 +1232,7 @@ function setActiveNav(page){
 
 function switchPage(page){
   setActiveNav(page);
-  ['home','stats','profile'].forEach(p=>{
+  ['home','stats','profile','settings','datos'].forEach(p=>{
     const pg = document.getElementById('page-'+p);
     if(pg) pg.style.display = p===page ? 'block' : 'none';
     const navBtn = document.getElementById('nav-'+p);
@@ -1243,6 +1247,8 @@ function switchPage(page){
     }
   }
   if(page==='profile') renderProfile();
+  if(page==='settings') renderSettings();
+  if(page==='datos') renderDatos();
 }
 
 // ── FILTER STATE MANAGEMENT ──
@@ -1356,7 +1362,7 @@ function renderStats(){
   const pend =records.filter(r=>r.status==='PENDIENTE').length;
   const desp =records.filter(r=>r.status==='DESPACHADO').length;
   const avg  =records.filter(r=>parseInt(r.dias)>0).reduce((s,r)=>s+parseInt(r.dias),0)/(records.filter(r=>parseInt(r.dias)>0).length||1);
-  document.getElementById('stats-bar').innerHTML=`
+  const _sb=document.getElementById('stats-bar'); if(_sb) _sb.innerHTML=`
     <div class="stat-pill"><span class="num">${total}</span><span class="lbl">Total</span></div>
     <div class="stat-pill danger"><span class="num">${pend}</span><span class="lbl">Pendientes</span></div>
     <div class="stat-pill ok"><span class="num">${desp}</span><span class="lbl">Despachados</span></div>
@@ -1789,6 +1795,43 @@ function updateStatsPage(){
   `;
 }
 
+function renderDatos(){
+  const c = document.getElementById('datos-content');
+  c.innerHTML = `
+    <div class="settings-group-label">Datos</div>
+    <div class="settings-list">
+      <div class="settings-item" onclick="exportCSV()">
+        <div class="settings-item-left"><div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="12" y1="9" x2="12" y2="21"/></svg></div><span class="settings-text">Exportar a Excel / CSV</span></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="settings-item" onclick="openReport()">
+        <div class="settings-item-left"><div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h5.697"/><path d="M18 12V7a2 2 0 00-2-2h-2"/><rect x="8" y="3" width="6" height="4" rx="1"/><path d="M16 22a4 4 0 100-8 4 4 0 000 8z"/><path d="M16 18v-2h-1"/></svg></div><span class="settings-text">Reportes por período</span></div>
+        <span class="chevron">›</span>
+      </div>
+    </div>`;
+}
+
+function renderSettings(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const c = document.getElementById('settings-content');
+  c.innerHTML = `
+    <div class="settings-group-label">Apariencia</div>
+    <div class="settings-list">
+      <div class="settings-item" onclick="toggleDarkMode();renderSettings()">
+        <div class="settings-item-left">
+          <div class="settings-icon">${isDark
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 3a6 6 0 009 9 9 9 0 11-9-9z"/></svg>'}</div>
+          <span class="settings-text">Modo ${isDark ? 'oscuro' : 'claro'}</span>
+        </div>
+        <div style="width:42px;height:24px;border-radius:12px;background:${isDark?'var(--yellow)':'var(--border2)'};position:relative;transition:background .2s;flex-shrink:0">
+          <div style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:transform .2s;transform:translateX(${isDark?'18px':'0'})"></div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:2rem">MANGA · v2.6 · 2026</p>`;
+}
+
 function renderProfile(){
   if(!currentUser)return;
   const ini=currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
@@ -1800,18 +1843,6 @@ function renderProfile(){
         <span class="profile-role ${isAdmin()?'admin':'viewer'}">${isAdmin()?'⚙️ Administrador':'👁 Solo consulta'}</span>
       </div>
     </div>
-    <div class="settings-group-label">Datos</div>
-    <div class="settings-list">
-      <div class="settings-item" onclick="exportCSV()">
-        <div class="settings-item-left"><div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="12" y1="9" x2="12" y2="21"/></svg></div><span class="settings-text">Exportar a Excel / CSV</span></div>
-        <span class="chevron">›</span>
-      </div>
-      <div class="settings-item" onclick="openReport()">
-        <div class="settings-item-left"><div class="settings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h5.697"/><path d="M18 12V7a2 2 0 00-2-2h-2"/><rect x="8" y="3" width="6" height="4" rx="1"/><path d="M16 22a4 4 0 100-8 4 4 0 000 8z"/><path d="M16 18v-2h-1"/></svg></div><span class="settings-text">Reportes por período</span></div>
-        <span class="chevron">›</span>
-      </div>
-    </div>
-
     ${isAdmin()?`
     <div class="settings-group-label">Administración</div>
     <div class="settings-list">
