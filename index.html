@@ -774,6 +774,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </button>
   </nav>
 
+<!-- DUPLICATE ALERT MODAL -->
+<div id="dup-alert-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--surface);border-radius:16px;overflow:hidden;max-width:380px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.3)">
+    <div style="padding:24px 20px 0;text-align:center">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--warning-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      </div>
+      <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">Contenedor duplicado</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:8px">Ya existe un registro con el contenedor</div>
+      <div id="dup-alert-nevera" style="font-family:'Roboto Mono',monospace;font-size:15px;font-weight:700;color:var(--accent);background:var(--surface2);border-radius:8px;padding:8px 14px;display:inline-block;margin-bottom:8px"></div>
+    </div>
+    <div style="margin:8px 20px;background:var(--surface2);border-radius:10px;padding:12px 14px;border-left:3px solid var(--danger)">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Registro existente</div>
+      <div id="dup-alert-info" style="font-size:12px;color:var(--text);line-height:1.6"></div>
+    </div>
+    <div style="padding:8px 20px 20px;display:flex;flex-direction:column;gap:8px">
+      <button onclick="authorizeDuplicate()" style="width:100%;padding:13px;background:var(--yellow);color:#001233;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Registrar de todas formas</button>
+      <button onclick="closeDuplicateAlert()" style="width:100%;padding:13px;background:var(--surface2);color:var(--text);border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div id="sync-indicator">
   <div id="sync-dot"></div>
   <span id="sync-label">Sincronizando...</span>
@@ -1569,10 +1591,37 @@ function autoDias(){
     statusSel.value = 'PENDIENTE';
   }
 }
+function showDuplicateAlert(existing, nevera){
+  const ov = document.getElementById('dup-alert-overlay');
+  const fechaEnt = existing.fecha_entrada ? fmtDate(existing.fecha_entrada) : '—';
+  const statusColor = existing.status === 'DESPACHADO' ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('dup-alert-nevera').textContent = nevera;
+  document.getElementById('dup-alert-info').innerHTML =
+    `${existing.ruta || 'Sin ruta'}<br>${fechaEnt} · <span style="color:${statusColor};font-weight:600">${existing.status}</span>`;
+  ov.style.display = 'flex';
+}
+
+function closeDuplicateAlert(){
+  document.getElementById('dup-alert-overlay').style.display = 'none';
+}
+
+function authorizeDuplicate(){
+  window._dupAuthorized = true;
+  closeDuplicateAlert();
+  saveRecord();
+}
+
 function saveRecord(){
   if(!isAdmin())return;
   const nevera=document.getElementById('f-nevera').value.trim().toUpperCase();
   if(!nevera){showToast('Ingresa el número de nevera');return;}
+  // Detectar duplicado: mostrar alerta con opción de autorizar
+  const dup = records.find(x => String(x.nevera).trim().toUpperCase() === nevera && x.id !== editingId);
+  if(dup && !window._dupAuthorized){
+    showDuplicateAlert(dup, nevera);
+    return;
+  }
+  window._dupAuthorized = false; // reset flag
   const r={
     id:editingId||Date.now(),
     mes:document.getElementById('f-mes').value,
@@ -2020,8 +2069,29 @@ function parseCSVLine(line){
 
 function confirmImport(){
   if(!importedRows.length) return;
-  const count = importedRows.length;
-  records = [...importedRows, ...records];
+  // Filtrar duplicados: contra registros existentes y entre las propias filas
+  const existing = new Set(records.map(r => String(r.nevera).trim().toUpperCase()));
+  const seen = new Set();
+  const toAdd = [];
+  const skipped = [];
+  importedRows.forEach(row => {
+    const nev = String(row.nevera).trim().toUpperCase();
+    if(existing.has(nev) || seen.has(nev)){
+      skipped.push(nev);
+    } else {
+      seen.add(nev);
+      toAdd.push(row);
+    }
+  });
+  if(toAdd.length === 0){
+    showToast('Todos los contenedores ya existen. Nada que importar.');
+    return;
+  }
+  const count = toAdd.length;
+  records = [...toAdd, ...records];
+  if(skipped.length > 0){
+    setTimeout(()=> showToast(`${skipped.length} duplicado${skipped.length!==1?'s':''} omitido${skipped.length!==1?'s':''}`), 2800);
+  }
   saveData();
   showLoading('Sincronizando con la nube...');
   syncToSupabase().then(()=>{
