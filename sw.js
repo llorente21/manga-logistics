@@ -1,4 +1,4 @@
-const CACHE = 'manga-v2.3';
+const CACHE = 'manga-v2.4';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
