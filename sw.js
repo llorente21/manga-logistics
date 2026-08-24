@@ -1,5 +1,5 @@
 // MANGA Service Worker - NETWORK ONLY para HTML (siempre fresco)
-const CACHE = 'manga-v3.5';
+const CACHE = 'manga-v3.7';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
