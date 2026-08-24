@@ -422,7 +422,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div id="app-screen">
   <header class="header">
     <!-- Logo -->
-    <div class="header-logo">
+    <div class="header-logo" onclick="switchPage('home');setActiveNav('home')" style="cursor:pointer">
       <span style="font-family:'Poppins','Nunito','Arial Rounded MT Bold',sans-serif;font-weight:800;font-size:26px;color:white;letter-spacing:-.3px">manga</span>
     </div>
     
@@ -430,10 +430,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="header-actions" id="header-actions">
       <!-- Desktop Navigation in header -->
       <div class="header-nav" id="header-nav-desktop">
-        <button class="header-nav-btn active" id="nav-home" onclick="switchPage('home')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><rect x="9" y="14" width="6" height="8"/></svg>
-          Inicio
-        </button>
         <button class="header-nav-btn" id="nav-stats" onclick="switchPage('stats')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>
           Stats
@@ -767,10 +763,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
   <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav" id="bottom-nav">
-    <button class="bottom-nav-btn active" id="bnav-home" onclick="switchPage('home');setActiveNav('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><rect x="9" y="14" width="6" height="8"/></svg>
-      <span>Inicio</span>
-    </button>
     <button class="bottom-nav-btn" id="bnav-stats" onclick="switchPage('stats');setActiveNav('stats')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="12" width="4" height="9"/><rect x="9.5" y="7" width="4" height="14"/><rect x="16" y="3" width="4" height="18"/></svg>
       <span>Stats</span>
