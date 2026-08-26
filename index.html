@@ -504,7 +504,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="drawer-handle"></div>
   <div class="drawer-header">
     <div><div class="drawer-title" id="detail-title"></div><div style="font-size:13px;color:var(--text3)" id="detail-sub"></div></div>
-    <span id="detail-badge"></span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="detail-badge"></span>
+      <button id="detail-edit-btn" class="btn-secondary" onclick="editCurrent()" title="Editar" style="padding:8px 12px;display:none">✏️ Editar</button>
+    </div>
   </div>
   <div class="drawer-body" id="detail-body"></div>
   <div class="drawer-actions" id="detail-actions"></div>
@@ -1495,6 +1498,7 @@ function openDetail(id){
   document.getElementById('detail-sub').textContent='Sello: '+(r.sello||'—');
   const ok=r.status==='DESPACHADO';
   document.getElementById('detail-badge').innerHTML=`<span class="status-badge ${ok?'badge-despachado':'badge-pendiente'}">${r.status}</span>`;
+  document.getElementById('detail-edit-btn').style.display=isAdmin()?'':'none';
   document.getElementById('detail-body').innerHTML=`
     <div class="detail-section">
       <div class="detail-section-title">Fechas y tiempo</div>
@@ -1537,7 +1541,6 @@ function openDetail(id){
     </div>`;
   document.getElementById('detail-actions').innerHTML=isAdmin()
     ?`<button class="btn-secondary" onclick="deleteFromDetail()" style="border-color:var(--danger);color:var(--danger)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M9 6V4h6v2"/></svg></button>
-      <button class="btn-secondary" onclick="editCurrent()">✏️ Editar</button>
       <button class="btn-primary" onclick="closeDrawer('detail')">Cerrar</button>`
     :`<button class="btn-primary" onclick="closeDrawer('detail')">Cerrar</button>`;
   openDrawer('detail');
